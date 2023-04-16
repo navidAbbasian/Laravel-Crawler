@@ -68,9 +68,13 @@ class ContentCrawler extends Controller
     {
         $array = [
             'title' => $this->hasContent($node->filter('h3.wd-entities-title a')) != false ? $node->filter('.wd-entities-title a')->text() : '',
-            'content' => $this->hasContent($node->filter('div.star-rating[aria-label]')) != false ? $node->filter('div.star-rating[aria-label]')->text() : '',
-            'author' => $this->hasContent($node->filter('.author__content h4 a')) != false ? $node->filter('.author__content h4 a')->text() : '',
-            'featured_image' => $this->hasContent($node->filter('.post__image a img')) != false ? $node->filter('.post__image a img')->eq(0)->attr('src') : ''
+            'score' => $this->hasContent($node->filter('div.star-rating[aria-label]')) != false ? $node->filter('div.star-rating[aria-label]')->text() : '',
+            'price' => $this->hasContent($node->filter('del span.woocommerce-Price-amount')) != false ? $node->filter('del span.woocommerce-Price-amount')->text() : '',
+            'discount-price' => $this->hasContent($node->filter('ins span.woocommerce-Price-amount')) != false ? $node->filter('ins span.woocommerce-Price-amount')->text() : '',
+            'discount-percent' => $this->hasContent($node->filter('span.onsale.product-label')) != false ? $node->filter('span.onsale.product-label')->text() : '',
+//            'product-image-link' => $this->hasContent($node->filter('a.product-image-link[href]')) != false ? $node->filter('a.product-image-link[href]')->text() : '',
+            'stock' => $this->hasContent($node->filter('span.out-of-stock')) != false ? 'Out of Stock' : 'In Stock',
+            'featured_image' => $this->hasContent($node->filter('img.attachment-woocommerce_thumbnail')) != false ? $node->filter('img.attachment-woocommerce_thumbnail')->eq(0)->attr('src') : ''
         ];
 
         return $array;
