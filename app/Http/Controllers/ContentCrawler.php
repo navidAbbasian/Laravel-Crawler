@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\Template;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Exception\GuzzleException;
@@ -46,7 +47,8 @@ class ContentCrawler extends Controller
                 ->each(function (Crawler $node, $i) use ($_this) {
                     return $_this->getNodeContent($node);
                 });
-            dump($data);
+            Content::insert($data);
+            print_r($data);
 
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -67,6 +69,8 @@ class ContentCrawler extends Controller
      */
     private function getNodeContent($node)
     {
+        $temp = Template::all();
+        dd($temp[0]['score']);
         $array = [
             'title' => $this->hasContent($node->filter('h3.wd-entities-title a')) != false ? $node->filter('.wd-entities-title a')->text() : '',
             'score' => $this->hasContent($node->filter('div.star-rating')) != false ? $node->filter('div.star-rating')->attr('aria-label') : '',
