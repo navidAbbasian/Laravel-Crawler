@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Content;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Exception\GuzzleException;
@@ -68,12 +69,12 @@ class ContentCrawler extends Controller
     {
         $array = [
             'title' => $this->hasContent($node->filter('h3.wd-entities-title a')) != false ? $node->filter('.wd-entities-title a')->text() : '',
-            'score' => $this->hasContent($node->filter('div.star-rating[aria-label]')) != false ? $node->filter('div.star-rating[aria-label]')->text() : '',
+            'score' => $this->hasContent($node->filter('div.star-rating')) != false ? $node->filter('div.star-rating')->attr('aria-label') : '',
             'price' => $this->hasContent($node->filter('del span.woocommerce-Price-amount')) != false ? $node->filter('del span.woocommerce-Price-amount')->text() : '',
             'discount-price' => $this->hasContent($node->filter('ins span.woocommerce-Price-amount')) != false ? $node->filter('ins span.woocommerce-Price-amount')->text() : '',
             'discount-percent' => $this->hasContent($node->filter('span.onsale.product-label')) != false ? $node->filter('span.onsale.product-label')->text() : '',
-//            'product-image-link' => $this->hasContent($node->filter('a.product-image-link[href]')) != false ? $node->filter('a.product-image-link[href]')->text() : '',
             'stock' => $this->hasContent($node->filter('span.out-of-stock')) != false ? 'Out of Stock' : 'In Stock',
+            'url' => $this->hasContent($node->filter('div.product-element-top a')) != false ? $node->filter('div.product-element-top a')->attr('href') : '',
             'featured_image' => $this->hasContent($node->filter('img.attachment-woocommerce_thumbnail')) != false ? $node->filter('img.attachment-woocommerce_thumbnail')->eq(0)->attr('src') : ''
         ];
 
