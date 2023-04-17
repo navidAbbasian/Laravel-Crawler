@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('site', function (Blueprint $table) {
             $table->id();
             $table->foreignId('template_id')->references('id')->on('template');
-            $table->string('site-url');
+            $table->string('site_url');
             $table->timestamps();
         });
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Content;
+use App\Models\Site;
 use App\Models\Template;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
@@ -31,18 +32,16 @@ class ContentCrawler extends Controller
     public function getCrawlerContent()
     {
         try {
-//            $site_url = "https://public.trendyol.com/discovery-web-productgw-service/api/productDetail/687004388?storefrontId=1&culture=tr-TR&linearVariants=true&isLegalRequirementConfirmed=false";
-            $site_url = "https://iranmojo.com/product-category/buy-cp-call-of-duty/";
-            $response = $this->client->get($site_url); // URL, where you want to fetch the content
+            $temp = Template::with('sites')->first();
+            $url = Site::where('id', $temp->sites->id)->first();
+
+            $response = $this->client->get($url->site_url); // URL, where you want to fetch the content
 
             // get content and pass to the crawler
             $content = $response->getBody()->getContents();
 
             $crawler = new Crawler($content);
-//            foreach ($crawler as $domElement) {
-//                dd($domElement->nodeValue);
-//            }
-            $temp = Template::with('sites')->first();
+
             $_this = $this;
             $data = $crawler->filter($temp['card'])
                 ->each(function (Crawler $node, $i) use ($_this , $temp) {
@@ -70,7 +69,6 @@ class ContentCrawler extends Controller
      */
     private function getNodeContent($node , $temp)
     {
-//        $temp = Template::first();
         $array = [
             'title' => $this->hasContent($node->filter($temp['title'])) != false ? $node->filter($temp['title'])->text() : '',
             'score' => $this->hasContent($node->filter($temp['score'])) != false ? $node->filter($temp['score'])->attr('aria-label') : '',

@@ -13,7 +13,7 @@ class Site extends Model
 
     protected $fillable = [
         'template_id',
-        'site-url'
+        'site_url'
     ];
 
     public function templates()
