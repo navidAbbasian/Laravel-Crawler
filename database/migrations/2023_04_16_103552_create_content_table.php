@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('content', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('site_id')->references('id')->on('site');
             $table->string('title');
             $table->string('score');
             $table->string('price');

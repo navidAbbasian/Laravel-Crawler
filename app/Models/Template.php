@@ -11,6 +11,7 @@ class Template extends Model
 
     protected $table = 'template';
     protected $fillable = [
+        'card',
         'title',
         'score',
         'price',
@@ -20,4 +21,8 @@ class Template extends Model
         'url',
         'featured_image'
         ];
+    public function sites()
+    {
+        return $this->belongsTo(Site::class, 'id');
+    }
 }

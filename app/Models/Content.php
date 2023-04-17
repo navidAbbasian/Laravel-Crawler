@@ -12,6 +12,7 @@ class Content extends Model
     protected $table = 'content';
 
     protected $fillable = [
+        'site_id',
         'title',
         'score',
         'price',
@@ -21,4 +22,9 @@ class Content extends Model
         'url',
         'featured_image'
     ];
+    public function sites()
+    {
+        return $this->belongsTo(Site::class,'site_id');
+
+    }
 }

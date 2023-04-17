@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('template', function (Blueprint $table) {
             $table->id();
+            $table->string('card');
             $table->string('title');
             $table->string('score');
             $table->string('price');
