@@ -35,7 +35,7 @@ class ContentCrawler extends Controller
             $temp = Template::with('sites')->first();
             $url = Site::where('id', $temp->sites->id)->first();
 
-            $response = $this->client->get($url->site_url); // URL, where you want to fetch the content
+            $response = $this->client->get($url->site_url); // URL, where you want to fetch the content ,($url->site_url)
 
             // get content and pass to the crawler
             $content = $response->getBody()->getContents();
@@ -48,7 +48,7 @@ class ContentCrawler extends Controller
                     return $_this->getNodeContent($node , $temp);
                 });
             Content::insert($data);
-            print_r($data);
+            dd($data);
 
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -65,7 +65,7 @@ class ContentCrawler extends Controller
 
     /**
      * Get node values
-     * @filter function required the identifires, which we want to filter from the content.
+     * @filter function required the identifires, which we want to filter from the content. Pars HTML
      */
     private function getNodeContent($node , $temp)
     {
@@ -83,4 +83,5 @@ class ContentCrawler extends Controller
 //        Template::insert($array);
         return $array;
     }
+
 }

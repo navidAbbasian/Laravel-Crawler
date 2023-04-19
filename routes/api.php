@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ContentCrawler;
+use App\Http\Controllers\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +15,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::get('test', [\App\Http\Controllers\ContentCrawler::class, 'getCrawlerContent']);
+Route::get('crawl', [ContentCrawler::class, 'getCrawlerContent']);
+Route::post('crawl', [ContentCrawler::class, 'getCrawlerContent']);
+
