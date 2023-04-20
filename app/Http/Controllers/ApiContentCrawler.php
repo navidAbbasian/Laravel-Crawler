@@ -28,7 +28,7 @@ class ApiContentCrawler extends Controller
     /**
      * Content Crawler
      */
-    public function getCrawlerContent()
+    public function getCrawlerContent(): void
     {
         try {
 
@@ -65,7 +65,8 @@ class ApiContentCrawler extends Controller
      * @param $decodeContent
      * @return array
      */
-    private function arrayReview($decodeContent){
+    private function arrayReview($decodeContent): array
+    {
         $arrayReview = array();
         foreach ($decodeContent->result->productReviews->content as $index => $jsonContent)
             $arrayReview[$index] = [

@@ -27,11 +27,13 @@ class ContentCrawler extends Controller
     /**
      * Content Crawler
      */
-    public function getCrawlerContent()
+    public function getCrawlerContent(): void
     {
         try {
             $temp = Template::with('sites')->first();
-            $url = Site::where('id', $temp->sites->id)->first();
+            //$url = Site::where('id', $temp->sites->id);
+
+            $url = Site::find( $temp->sites->id);
 
             $response = $this->client->get($url->site_url); // URL, where you want to fetch the content ,($url->site_url)
 
@@ -56,28 +58,26 @@ class ContentCrawler extends Controller
     /**
      * Check is content available
      */
-    private function hasContent($node)
+    private function hasContent($node): bool
     {
-        return $node->count() > 0 ? true : false;
+        return $node->count() > 0;
     }
     /**
      * Get node values
      * @filter function required the identifires, which we want to filter from the content. Pars HTML
      */
-    private function getNodeContent($node , $temp)
+    private function getNodeContent($node , $temp): array
     {
-        $array = [
-            'title' => $this->hasContent($node->filter($temp['title'])) != false ? $node->filter($temp['title'])->text() : '',
-            'score' => $this->hasContent($node->filter($temp['score'])) != false ? $node->filter($temp['score'])->attr('aria-label') : '',
-            'price' => $this->hasContent($node->filter($temp['price'])) != false ? $node->filter($temp['price'])->text() : '',
-            'discount-price' => $this->hasContent($node->filter($temp['discount-price'])) != false ? $node->filter($temp['discount-price'])->text() : '',
-            'discount-percent' => $this->hasContent($node->filter($temp['discount-percent'])) != false ? $node->filter($temp['discount-percent'])->text() : '',
-            'stock' => $this->hasContent($node->filter($temp['stock'])) != false ? 'Out of Stock' : 'In Stock',
-            'url' => $this->hasContent($node->filter($temp['url'])) != false ? $node->filter($temp['url'])->attr('href') : '',
-            'featured_image' => $this->hasContent($node->filter($temp['featured_image'])) != false ? $node->filter($temp['featured_image'])->eq(0)->attr('src') : '',
+        return [
+            'title' => $this->hasContent($node->filter($temp['title'])) ? $node->filter($temp['title'])->text() : '',
+            'score' => $this->hasContent($node->filter($temp['score'])) ? $node->filter($temp['score'])->attr('aria-label') : '',
+            'price' => $this->hasContent($node->filter($temp['price'])) ? $node->filter($temp['price'])->text() : '',
+            'discount-price' => $this->hasContent($node->filter($temp['discount-price'])) ? $node->filter($temp['discount-price'])->text() : '',
+            'discount-percent' => $this->hasContent($node->filter($temp['discount-percent'])) ? $node->filter($temp['discount-percent'])->text() : '',
+            'stock' => $this->hasContent($node->filter($temp['stock'])) ? 'Out of Stock' : 'In Stock',
+            'url' => $this->hasContent($node->filter($temp['url'])) ? $node->filter($temp['url'])->attr('href') : '',
+            'featured_image' => $this->hasContent($node->filter($temp['featured_image'])) ? $node->filter($temp['featured_image'])->eq(0)->attr('src') : '',
             'site_id' => $temp->sites->id
         ];
-//        Template::insert($array);
-        return $array;
     }
 }
