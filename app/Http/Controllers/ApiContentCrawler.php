@@ -33,36 +33,27 @@ class ApiContentCrawler extends Controller
         try {
 
             $url = "https://public-mdc.trendyol.com/discovery-web-socialgw-service/api/review/284671018?merchantId=107671&storefrontId=1&culture=tr-TR&order=5&searchValue=&onlySellerReviews=false&page=4&tagValue=t%C3%BCm%C3%BC";
-            $response = $this->client->get($url); // URL, where you want to fetch the content ,($url->site_url)
+            $response = $this->client->get($url); // URL, where you want to fetch the content
             // process on json api
             $content = $response->getBody()->getContents();
 
             $decodeContent = json_decode($content);
 
-            $test = [
+            //polished Api
+            $arrayReview =  $this->arrayReview($decodeContent);
+
+            $api = [
                 'raw_api'=> json_encode($decodeContent),
-                'polished_api'=> json_encode(['1' ,'2'])
+                'polished_api'=> $arrayReview
             ];
+            dd($api);
+//            ApiStore::create($api);
 
-            ApiStore::create($test);
-            foreach ($decodeContent->result->productReviews->content as $jasonContent)
-                $array = [
-                    'comment' => $jasonContent->comment,
-                    'productSize' => $jasonContent->productSize
-
-                ];
-            dd($array);
-
-
-//            $arrayContent = array_column($decodeContent->result, 'comment');
-//            dd($arrayContent);
-//            if ($decodeContent->isSuccess){
-//                dd('moz');
-//            }
         } catch (Exception $e) {
             echo $e->getMessage();
         }
     }
+
     /**
      * Check is content available
      */
@@ -71,15 +62,19 @@ class ApiContentCrawler extends Controller
         return $node->count() > 0 ? true : false;
     }
     /**
-     * Get node values
-     * @filter function required the identifires, which we want to filter from the content.
+     * @param $decodeContent
+     * @return array
      */
-    private function getNodeContent($node , $temp)
-    {
-        $array = [
-
-
-        ];
-        return $array;
+    private function arrayReview($decodeContent){
+        $arrayReview = array();
+        foreach ($decodeContent->result->productReviews->content as $index => $jsonContent)
+            $arrayReview[$index] = [
+                'review' => [
+                    'comment' => $jsonContent->comment,
+                    'productSize' => $jsonContent->productSize],
+                'image' => ['آدرس عکس']
+            ];
+//        dd($arrayReview);
+        return $arrayReview;
     }
 }
