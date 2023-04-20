@@ -14,7 +14,6 @@ use Exception;
 class ContentCrawler extends Controller
 {
     private $client;
-
     /**
      * Class __contruct
      */
@@ -25,7 +24,6 @@ class ContentCrawler extends Controller
             'verify' => false
         ]);
     }
-
     /**
      * Content Crawler
      */
@@ -43,6 +41,7 @@ class ContentCrawler extends Controller
             $crawler = new Crawler($content);
 
             $_this = $this;
+
             $data = $crawler->filter($temp['card'])
                 ->each(function (Crawler $node, $i) use ($_this , $temp) {
                     return $_this->getNodeContent($node , $temp);
@@ -54,7 +53,6 @@ class ContentCrawler extends Controller
             echo $e->getMessage();
         }
     }
-
     /**
      * Check is content available
      */
@@ -62,7 +60,6 @@ class ContentCrawler extends Controller
     {
         return $node->count() > 0 ? true : false;
     }
-
     /**
      * Get node values
      * @filter function required the identifires, which we want to filter from the content. Pars HTML
@@ -83,5 +80,4 @@ class ContentCrawler extends Controller
 //        Template::insert($array);
         return $array;
     }
-
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiContentCrawler;
 use App\Http\Controllers\ContentCrawler;
 use App\Http\Controllers\StoreController;
 use Illuminate\Http\Request;
@@ -16,5 +17,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::get('crawl', [ContentCrawler::class, 'getCrawlerContent']);
-Route::post('crawl', [ContentCrawler::class, 'getCrawlerContent']);
+//Route::post('crawl', [ContentCrawler::class, 'getCrawlerContent']);
+
+Route::get('trendyol',[ApiContentCrawler::class, 'getCrawlerContent']);
 
