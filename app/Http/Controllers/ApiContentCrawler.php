@@ -70,10 +70,12 @@ class ApiContentCrawler extends Controller
         $arrayReview = array();
         foreach ($decodeContent->result->productReviews->content as $index => $jsonContent)
             $arrayReview[$index] = [
-                'review' => [
-                    'comment' => $jsonContent->comment,
+                'comment' => [
+                    'description' => $jsonContent->comment,
                     'productSize' => $jsonContent->productSize],
-                'image' => ['آدرس عکس']
+                'image' => [
+                    'src'=> 'آدرس عکس'
+                ]
             ];
 //        dd($arrayReview);
         return $arrayReview;
