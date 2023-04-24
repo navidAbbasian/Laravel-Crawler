@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site', function (Blueprint $table) {
+        Schema::create('fields', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('template_id')->references('id')->on('template');
-            $table->string('site_url');
+            $table->foreignId('template_id')->references('id')->on('templates');
+            $table->string('source');
+            $table->string('destination');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('site');
+        Schema::dropIfExists('fields');
     }
 };

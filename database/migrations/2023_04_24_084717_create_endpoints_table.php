@@ -11,17 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('template', function (Blueprint $table) {
+        Schema::create('endpoints', function (Blueprint $table) {
             $table->id();
-            $table->string('card');
-            $table->string('title');
-            $table->string('score');
-            $table->string('price');
-            $table->string('discount-price');
-            $table->string('discount-percent');
-            $table->string('stock');
             $table->string('url');
-            $table->string('featured_image');
             $table->timestamps();
         });
     }
@@ -31,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('template');
+        Schema::dropIfExists('endpoints');
     }
 };

@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('api_store', function (Blueprint $table) {
+        Schema::create('templates', function (Blueprint $table) {
             $table->id();
-            $table->json('raw_api')->nullable();
-            $table->json('polished_api')->nullable();
+            $table->foreignId('endpoint_id')->references('id')->on('endpoints');
+            $table->string('site');
+            $table->string('table');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('api_store');
+        Schema::dropIfExists('templates');
     }
 };

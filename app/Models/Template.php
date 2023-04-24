@@ -9,20 +9,21 @@ class Template extends Model
 {
     use HasFactory;
 
-    protected $table = 'template';
+    protected $table = 'templates';
+
     protected $fillable = [
-        'card',
-        'title',
-        'score',
-        'price',
-        'discount-price',
-        'discount-percent',
-        'stock',
-        'url',
-        'featured_image'
+        'endpoint_id',
+        'site',
+        'table'
         ];
-    public function sites()
+
+    public function endpoints()
     {
-        return $this->belongsTo(Site::class, 'id');
+        return $this->belongsTo(Endpoint::class);
+    }
+
+    public function fields(){
+        return $this->hasMany(Field::class);
+
     }
 }
