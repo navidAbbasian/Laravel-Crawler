@@ -9,12 +9,14 @@ use Symfony\Component\DomCrawler\Crawler;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Exception;
+
 class ApiContentCrawler extends Controller
 {
     /**
      * @var Client
      */
     private $client;
+
     /**
      * Class __contruct
      */
@@ -25,6 +27,7 @@ class ApiContentCrawler extends Controller
             'verify' => false
         ]);
     }
+
     /**
      * Content Crawler
      */
@@ -39,12 +42,18 @@ class ApiContentCrawler extends Controller
             $content = $response->getBody()->getContents();
 
             $decodeContent = json_decode($content);
-            dd($decodeContent);
+
+//            dd($decodeContent);
+
+
             //final data
             $data = array();
-            foreach ($decodeContent->result->productReviews->content as $index => $test){
-                $data[$index] = $this->getTemplateData($test);
-            }
+            //comment table
+//            foreach ($decodeContent->result->productReviews->content as $index => $test) {
+//                $data[$index] = $this->getTemplateData($test);
+//            }
+            //products tables
+            $data = $this->getSecondTemplateData($decodeContent);
             dd($data);
 
         } catch (Exception $e) {
@@ -59,6 +68,7 @@ class ApiContentCrawler extends Controller
     {
         return $node->count() > 0;
     }
+
     /**
      * @param $decodeContent
      * @return array
@@ -68,7 +78,7 @@ class ApiContentCrawler extends Controller
     {
         $image = false;
 
-        if (property_exists($decodeContent, "mediaFiles"))$image = true;
+        if (property_exists($decodeContent, "mediaFiles")) $image = true;
 
         //key is dest value is source
         $template_data = [
@@ -81,13 +91,42 @@ class ApiContentCrawler extends Controller
                 'rate' => $decodeContent->rate
             ]
         ];
-        if ($image){
+        if ($image) {
             foreach ($decodeContent->mediaFiles as $i => $img)
                 $template_data['image'][$i] =
                     [
                         'url' => $img->url
                     ];
         }
+        return $template_data;
+    }
+
+    private function getSecondTemplateData($decodeContent)
+    {
+        $template_data = [
+            'product' => [
+                'color' => $decodeContent->result->color,
+                'title' => $decodeContent->result->name,
+                'productCode' => $decodeContent->result->productCode,
+                'nameWithProductCode' => $decodeContent->result->nameWithProductCode,
+                'slug' => $decodeContent->result->url,
+                'gender' => $decodeContent->result->gender->name,
+            ],
+            'images' => [
+                'images_url' => $decodeContent->result->images
+            ],
+            'category' => [
+                'id' => $decodeContent->result->category->id,
+                'name' => $decodeContent->result->category->name,
+                'parents/hierarchy' => $decodeContent->result->category->hierarchy
+
+            ],
+            'brand' => [
+                'id' => $decodeContent->result->brand->id,
+                'name' => $decodeContent->result->brand->name,
+                'slug' => $decodeContent->result->brand->path
+            ],
+        ];
         return $template_data;
     }
 }
