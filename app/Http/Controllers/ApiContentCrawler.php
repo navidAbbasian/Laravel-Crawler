@@ -32,6 +32,7 @@ class ApiContentCrawler extends Controller
     {
         try {
 
+            //endpoint table
             $url = "https://public-mdc.trendyol.com/discovery-web-socialgw-service/api/review/284671018?merchantId=107671&storefrontId=1&culture=tr-TR&order=5&searchValue=&onlySellerReviews=false&page=4&tagValue=t%C3%BCm%C3%BC";
             $response = $this->client->get($url); // URL, where you want to fetch the content
             // process on json api
@@ -39,15 +40,11 @@ class ApiContentCrawler extends Controller
 
             $decodeContent = json_decode($content);
 
-            //polished Api
-            $arrayReview =  $this->arrayReview($decodeContent);
-
-            $api = [
-                'raw_api'=> json_encode($decodeContent),
-                'polished_api'=> $arrayReview
-            ];
-            dd($api);
-//            ApiStore::create($api);
+            $data = array();
+            foreach ($decodeContent->result->productReviews->content as $index => $test){
+                $data[$index] = $this->getTemplateData($test);
+            }
+            dd($data);
 
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -57,27 +54,39 @@ class ApiContentCrawler extends Controller
     /**
      * Check is content available
      */
-    private function hasContent($node)
+    private function hasContent($node): bool
     {
-        return $node->count() > 0 ? true : false;
+        return $node->count() > 0;
     }
     /**
      * @param $decodeContent
      * @return array
      */
-    private function arrayReview($decodeContent): array
+
+    private function getTemplateData($decodeContent): array
     {
-        $arrayReview = array();
-        foreach ($decodeContent->result->productReviews->content as $index => $jsonContent)
-            $arrayReview[$index] = [
-                'comment' => [
-                    'description' => $jsonContent->comment,
-                    'productSize' => $jsonContent->productSize],
-                'image' => [
-                    'src'=> 'آدرس عکس'
-                ]
-            ];
-//        dd($arrayReview);
-        return $arrayReview;
+        $image = false;
+
+        if (property_exists($decodeContent, "mediaFiles"))$image = true;
+
+        //key is dest value is source
+        $template_data = [
+            'comment' => [
+                'title' => $decodeContent->commentTitle,
+                'description' => $decodeContent->comment,
+                'productSize' => $decodeContent->productSize,
+                'username' => $decodeContent->userFullName,
+                'id' => $decodeContent->id,
+                'rate' => $decodeContent->rate
+            ]
+        ];
+        if ($image){
+            foreach ($decodeContent->mediaFiles as $i => $img)
+                $template_data['image'][$i] =
+                    [
+                        'url' => $img->url
+                    ];
+        }
+        return $template_data;
     }
 }
