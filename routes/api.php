@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+//pars html
 Route::get('crawl', [ContentCrawler::class, 'getCrawlerContent']);
-//Route::post('crawl', [ContentCrawler::class, 'getCrawlerContent']);
 
-Route::get('trendyol',[ApiContentCrawler::class, 'getCrawlerContent']);
+//api
+Route::post('trend/{id}',[ApiContentCrawler::class, 'getCrawlerContent']);
 

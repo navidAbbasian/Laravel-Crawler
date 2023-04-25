@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Template extends Model
 {
     use HasFactory;
-
     protected $table = 'templates';
 
     protected $fillable = [
@@ -24,6 +23,5 @@ class Template extends Model
 
     public function fields(){
         return $this->hasMany(Field::class);
-
     }
 }

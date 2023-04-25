@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 
+use App\Models\Endpoint;
+use App\Models\Field;
 use App\Models\Template;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
@@ -31,13 +33,12 @@ class ApiContentCrawler extends Controller
     /**
      * Content Crawler
      */
-    public function getCrawlerContent(): void
+    public function getCrawlerContent($endpoint_id): void
     {
         try {
-
             //endpoint table
-            $url = "https://public.trendyol.com/discovery-web-productgw-service/api/productDetail/687004388?storefrontId=1&culture=tr-TR&linearVariants=true&isLegalRequirementConfirmed=false";
-            $response = $this->client->get($url); // URL, where you want to fetch the content
+            $endpoint = Endpoint::find($endpoint_id);
+            $response = $this->client->get($endpoint->url); // URL, where you want to fetch the content
             // process on json api
             $content = $response->getBody()->getContents();
 
@@ -47,13 +48,12 @@ class ApiContentCrawler extends Controller
 
 
             //final data
-            $data = array();
             //comment table
 //            foreach ($decodeContent->result->productReviews->content as $index => $test) {
 //                $data[$index] = $this->getTemplateData($test);
 //            }
             //products tables
-            $data = $this->getSecondTemplateData($decodeContent);
+            $data = $this->getSecondTemplateData($decodeContent, $endpoint_id);
             dd($data);
 
         } catch (Exception $e) {
@@ -101,32 +101,43 @@ class ApiContentCrawler extends Controller
         return $template_data;
     }
 
-    private function getSecondTemplateData($decodeContent)
+    private function getSecondTemplateData($decodeContent, $endpoint_id)
     {
-        $template_data = [
-            'product' => [
-                'color' => $decodeContent->result->color,
-                'title' => $decodeContent->result->name,
-                'productCode' => $decodeContent->result->productCode,
-                'nameWithProductCode' => $decodeContent->result->nameWithProductCode,
-                'slug' => $decodeContent->result->url,
-                'gender' => $decodeContent->result->gender->name,
-            ],
-            'images' => [
-                'images_url' => $decodeContent->result->images
-            ],
-            'category' => [
-                'id' => $decodeContent->result->category->id,
-                'name' => $decodeContent->result->category->name,
-                'parents/hierarchy' => $decodeContent->result->category->hierarchy
-
-            ],
-            'brand' => [
-                'id' => $decodeContent->result->brand->id,
-                'name' => $decodeContent->result->brand->name,
-                'slug' => $decodeContent->result->brand->path
-            ],
-        ];
+        $tables = Template::where('endpoint_id',$endpoint_id)->get();
+        $template_data = [];
+        foreach ($tables as $table){
+            $template_data[$table->table] = [];
+            $fields = Field::select()->where('template_id', $table->id)->get();
+            foreach ( $fields as $field){
+                $source = "$field->source";
+//                dd($decodeContent->$source);
+                $template_data[$table->table][$field->destination] = $decodeContent->$source;
+            }
+        }
+//        $template_data = [
+//            'product' => [
+//                'color' => $decodeContent->result->color,
+//                'title' => $decodeContent->result->name,
+//                'productCode' => $decodeContent->result->productCode,
+//                'nameWithProductCode' => $decodeContent->result->nameWithProductCode,
+//                'slug' => $decodeContent->result->url,
+//                'gender' => $decodeContent->result->gender->name,
+//            ],
+//            'images' => [
+//                'images_url' => $decodeContent->result->images
+//            ],
+//            'category' => [
+//                'id' => $decodeContent->result->category->id,
+//                'name' => $decodeContent->result->category->name,
+//                'parents/hierarchy' => $decodeContent->result->category->hierarchy
+//
+//            ],
+//            'brand' => [
+//                'id' => $decodeContent->result->brand->id,
+//                'name' => $decodeContent->result->brand->name,
+//                'slug' => $decodeContent->result->brand->path
+//            ],
+//        ];
         return $template_data;
     }
 }
