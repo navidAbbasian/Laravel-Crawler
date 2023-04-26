@@ -42,7 +42,7 @@ class ApiContentCrawler extends Controller
             // process on json api
             $content = $response->getBody()->getContents();
 
-            $decodeContent = json_decode($content);
+            $decodeContent = $content;
 
 //            dd($decodeContent);
 
@@ -54,7 +54,7 @@ class ApiContentCrawler extends Controller
 //            }
             //products tables
             $data = $this->getSecondTemplateData($decodeContent, $endpoint_id);
-            dd($data);
+            print_r($data);
 
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -100,18 +100,39 @@ class ApiContentCrawler extends Controller
         }
         return $template_data;
     }
-
-    private function getSecondTemplateData($decodeContent, $endpoint_id)
+    private function test($dest , $key, $template, $field  ): void
     {
-        $tables = Template::where('endpoint_id',$endpoint_id)->get();
+        if (isset($dest[$key])) {
+            $dest = $dest[$key];
+            dd($dest);
+        } else {
+            foreach ($dest as $i => $item) {
+                if (isset($item[$key])){
+                    $template_data[$template->table][$field->destination][$i] = $item[$key];
+                }else{
+                    $this->test($dest , $item, $template, $field);
+                }
+            }
+        }
+    }
+    private function getSecondTemplateData($decodeContent, $endpoint_id): array
+    {
+        $templates = Template::where('endpoint_id', $endpoint_id)->get();
         $template_data = [];
-        foreach ($tables as $table){
-            $template_data[$table->table] = [];
-            $fields = Field::select()->where('template_id', $table->id)->get();
-            foreach ( $fields as $field){
-                $source = "$field->source";
-//                dd($decodeContent->$source);
-                $template_data[$table->table][$field->destination] = $decodeContent->$source;
+        foreach ($templates as $template) {
+            $template_data[$template->table] = [];
+            $fields = Field::select()->where('template_id', $template->id)->get();
+            foreach ($fields as $field) {
+                $source = $field->source;
+                $keys = explode('->', $source);
+
+                $dest = json_decode($decodeContent, true);
+                foreach ($keys as $key) {
+                    $this->test($dest , $key, $template , $field);
+
+                }
+//                return $dest;
+//                $template_data[$template->table][$field->destination] = $decodeContent->{"-" . $source};
             }
         }
 //        $template_data = [
