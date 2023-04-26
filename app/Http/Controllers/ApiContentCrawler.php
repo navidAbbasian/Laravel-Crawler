@@ -100,21 +100,23 @@ class ApiContentCrawler extends Controller
         }
         return $template_data;
     }
-    private function test($dest , $key, $template, $field  ): void
+    private function test($dest , $keys, $template, $field)
     {
-        if (isset($dest[$key])) {
-            $dest = $dest[$key];
-            dd($dest);
-        } else {
-            foreach ($dest as $i => $item) {
-                if (isset($item[$key])){
-                    $template_data[$template->table][$field->destination][$i] = $item[$key];
-                }else{
-                    $this->test($dest , $item, $template, $field);
+        foreach ($keys as $key) {
+            if (isset($dest[$key])) {
+                $dest = $dest[$key];
+            } else {
+                foreach ($dest as $item) {
+                    if (isset($item[$key])){
+                        $template_data[$template->table][$field->destination] = $item[$key];
+                    }else{
+                        $this->test($dest , $item, $template, $field);
+                    }
                 }
             }
         }
     }
+
     private function getSecondTemplateData($decodeContent, $endpoint_id): array
     {
         $templates = Template::where('endpoint_id', $endpoint_id)->get();
@@ -127,10 +129,12 @@ class ApiContentCrawler extends Controller
                 $keys = explode('->', $source);
 
                 $dest = json_decode($decodeContent, true);
-                foreach ($keys as $key) {
-                    $this->test($dest , $key, $template , $field);
 
-                }
+                $this->test($dest , $keys, $template , $field);
+
+
+
+
 //                return $dest;
 //                $template_data[$template->table][$field->destination] = $decodeContent->{"-" . $source};
             }
