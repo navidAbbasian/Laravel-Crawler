@@ -42,19 +42,19 @@ class ApiContentCrawler extends Controller
             // process on json api
             $content = $response->getBody()->getContents();
 
-            $decodeContent = $content;
-
-//            dd($decodeContent);
-
+            $decodeContent = json_decode($content);
 
             //final data
             //comment table
+            $data = [];
 //            foreach ($decodeContent->result->productReviews->content as $index => $test) {
-//                $data[$index] = $this->getTemplateData($test);
+            $data = $this->getTemplateData($decodeContent);
+            dd($data);
 //            }
             //products tables
-            $data = $this->getSecondTemplateData($decodeContent, $endpoint_id);
-            print_r($data);
+//            $data = $this->getSecondTemplateData($content, $endpoint_id);
+//            dd($data);
+//            dd("آخرشه اینجا");
 
         } catch (Exception $e) {
             echo $e->getMessage();
@@ -62,107 +62,172 @@ class ApiContentCrawler extends Controller
     }
 
     /**
-     * Check is content available
-     */
-    private function hasContent($node): bool
-    {
-        return $node->count() > 0;
-    }
-
-    /**
-     * @param $decodeContent
+     * @param $content
      * @return array
      */
 
     private function getTemplateData($decodeContent): array
     {
-        $image = false;
+        $template_data = [];
+//        dd(property_exists($decodeContent->result->productReviews->content[27], "mediaFiles"));
+//        dd($decodeContent->result->productReviews->content[27]->mediaFiles[0]->url);
+        foreach ($decodeContent->result->productReviews->content as $index => $test) {
+            if (property_exists($test, "mediaFiles")) {
+                $image = true;
+            }else{
+                $image = false;
+            }
 
-        if (property_exists($decodeContent, "mediaFiles")) $image = true;
+            $template_data[$index] = [
+                'comment' => [
+                    'title' => $test->commentTitle,
+                    'description' => $test->comment,
+                    'productSize' => $test->productSize,
+                    'username' => $test->userFullName,
+                    'id' => $test->id,
+                    'rate' => $test->rate,
+//                    'test' => $decodeContent->result->productReviews->content[27]->mediaFiles[0]->url
+                ]
+            ];
 
-        //key is dest value is source
-        $template_data = [
-            'comment' => [
-                'title' => $decodeContent->commentTitle,
-                'description' => $decodeContent->comment,
-                'productSize' => $decodeContent->productSize,
-                'username' => $decodeContent->userFullName,
-                'id' => $decodeContent->id,
-                'rate' => $decodeContent->rate
-            ]
-        ];
-        if ($image) {
-            foreach ($decodeContent->mediaFiles as $i => $img)
-                $template_data['image'][$i] =
-                    [
-                        'url' => $img->url
-                    ];
+            if ($image) {
+                foreach ($test->mediaFiles as $i => $img)
+                    $template_data['image'][$i] =
+                        [
+                            'url' => $img->url
+                        ];
+            }
         }
         return $template_data;
     }
-    private function test($dest , $keys, $template, $field)
-    {
-        foreach ($keys as $key) {
-            if (isset($dest[$key])) {
-                $dest = $dest[$key];
-            } else {
-                foreach ($dest as $item) {
-                    if (isset($item[$key])){
-                        $template_data[$template->table][$field->destination] = $item[$key];
-                    }else{
-                        $this->test($dest , $item, $template, $field);
-                    }
-                }
-            }
-        }
-    }
+//    private function test($dest, $keys, $template, $field)
+//    {
+//        foreach ($keys as $key) {
+//            if (isset($dest[$key])) {
+//                $dest = $dest[$key];
+//            } else {
+//                foreach ($dest as $item) {
+//                    if (isset($item[$key])) {
+//                        $template_data[$template->table][$field->destination] = $item[$key];
+//                    } else {
+//                        $this->test($dest, $item, $template, $field);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    private function getSecondTemplateData($decodeContent, $endpoint_id): array
-    {
-        $templates = Template::where('endpoint_id', $endpoint_id)->get();
-        $template_data = [];
-        foreach ($templates as $template) {
-            $template_data[$template->table] = [];
-            $fields = Field::select()->where('template_id', $template->id)->get();
-            foreach ($fields as $field) {
-                $source = $field->source;
-                $keys = explode('->', $source);
+//    private function getSecondTemplateData($content, $endpoint_id): array
+//    {
+//        $templates = Template::where('endpoint_id', $endpoint_id)->get();
+//        $template_data = [];
+//        foreach ($templates as $template) {
+//            $template_data[$template->table] = [];
+//            $fields = Field::where('template_id', $template->id)->first();
+//            $key_fields = explode('->', $fields->source);
+//            $p =[];
+//            foreach ($key_fields as $key_field) {
+//                if (isset($key_field)) {
+//                    $p[] = $key_field;
+//                }
+//            }
+//            if (is_array($p)) {
+//                for ($i=0;$i<count($p);$i++){
+//                    $template_data[$template->table][$fields->destination] = json_decode($content,true)[$p[$i]][$p[++$i]][$p[++$i]][$i][$p[++$i]];
+//                }
+////                foreach ($p as $n) {
+////                    $template_data[$template->table][$fields->destination] = json_decode($content,true)['result']['productReviews']['content'][1]['comment'];
+////                }
+//            } else {
+//               dd(1);
+//            }
+//        }
+//                foreach ($fields as $h => $field) {
+//                $source = $field->source;
+//                $keys = explode('->', $source);
+//
+//                $dest = json_decode($content, true);
 
-                $dest = json_decode($decodeContent, true);
-
-                $this->test($dest , $keys, $template , $field);
-
-
+//                dd($dest);
+//                dd($keys);
+//                foreach ($keys as $key){
+//                    dd($key);
+//
+//                }
+//                $template_data[$template->table][$field->destination] = $item[$key];
+//                foreach ($keys as $t => $key) {
+////                    if ($t == 3) dd($key);
+//                    if (array_key_exists($key, $dest)) {
+//                        if (is_array($dest[$key])) {
+//                            $dest = $dest[$key];
+//                        }
+//                    }else{
+//                        if (is_array($dest)){
+//                            foreach ($dest as $i => $item){
+//                                if (array_key_exists( $key, $item)){
+//                                    if (!is_array($item[$key])){
+//                                        $template_data[$template->table][$i][$field->destination] = $item[$key];
+//                                    }else{
+//                                        foreach ($item[$key] as $d => $sag){
+//                                            if (array_key_exists( $key[$t++], $sag)) {
+//                                                if (!is_array($sag[$key++])) {
+//                                                    $template_data[$template->table][$i][$field->destination] = $sag[$key];
+//                                                }else{
+//                                                    $template_data[$template->table][$i][$field->destination][$key] = $sag[$key];
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }else{
+//                            dd('test');
+//                        }
+//                    }
+//                    if (isset($dest[$key])) {
+//                        $dest = $dest[$key];
+//                    } else {
+//                        foreach ($dest as $item) {
+//                            if (isset($item[$key])){
+//                                $template_data[$template->table][$field->destination] = $item[$key];
+//                            }else{
+//                                $this->test($dest , $item, $template, $field);
+//                            }
+//                        }
+//                    }
+//                }
+//                $this->test($dest , $keys, $template , $field);
 
 
 //                return $dest;
-//                $template_data[$template->table][$field->destination] = $decodeContent->{"-" . $source};
-            }
-        }
+//                $template_data[$template->table][$field->destination] = $content->{"-" . $source};
+//            }
+//            dd($template_data , 'test');
+//        }
 //        $template_data = [
 //            'product' => [
-//                'color' => $decodeContent->result->color,
-//                'title' => $decodeContent->result->name,
-//                'productCode' => $decodeContent->result->productCode,
-//                'nameWithProductCode' => $decodeContent->result->nameWithProductCode,
-//                'slug' => $decodeContent->result->url,
-//                'gender' => $decodeContent->result->gender->name,
+//                'color' => $content->result->color,
+//                'title' => $content->result->name,
+//                'productCode' => $content->result->productCode,
+//                'nameWithProductCode' => $content->result->nameWithProductCode,
+//                'slug' => $content->result->url,
+//                'gender' => $content->result->gender->name,
 //            ],
 //            'images' => [
-//                'images_url' => $decodeContent->result->images
+//                'images_url' => $content->result->images
 //            ],
 //            'category' => [
-//                'id' => $decodeContent->result->category->id,
-//                'name' => $decodeContent->result->category->name,
-//                'parents/hierarchy' => $decodeContent->result->category->hierarchy
+//                'id' => $content->result->category->id,
+//                'name' => $content->result->category->name,
+//                'parents/hierarchy' => $content->result->category->hierarchy
 //
 //            ],
 //            'brand' => [
-//                'id' => $decodeContent->result->brand->id,
-//                'name' => $decodeContent->result->brand->name,
-//                'slug' => $decodeContent->result->brand->path
+//                'id' => $content->result->brand->id,
+//                'name' => $content->result->brand->name,
+//                'slug' => $content->result->brand->path
 //            ],
 //        ];
-        return $template_data;
-    }
+//        return $template_data;
+//    }
 }
