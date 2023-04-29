@@ -48,7 +48,7 @@ class ApiContentCrawler extends Controller
             //comment table
             $data = [];
 //            foreach ($decodeContent->result->productReviews->content as $index => $test) {
-            $data = $this->getTemplateData($decodeContent , $endpoint_id);
+            $data = $this->getTemplateData($content, $endpoint_id);
             dd($data);
 //            }
             //products tables
@@ -66,38 +66,61 @@ class ApiContentCrawler extends Controller
      * @return array
      */
 
-    private function getTemplateData($decodeContent ,$endpoint_id): array
+    private function getTemplateData($content, $endpoint_id): array
     {
         $templates = Template::where('endpoint_id', $endpoint_id)->get();
-        $content = $decodeContent->result->productReviews->content;
-        $template_data = [];
-//        dd(property_exists($decodeContent->result->productReviews->content[27], "mediaFiles"));
-//        dd($decodeContent->result->productReviews->content[27]->mediaFiles[0]->url);
-        foreach ($content as $index => $source) {
-            $image = property_exists($source, "mediaFiles");
-            $template_data[$index] = [
-                'comment' => [
-                    'title' => $source->commentTitle,
-                    'description' => $source->comment,
-                    'productSize' => $source->productSize,
-                    'username' => $source->userFullName,
-                    'id' => $source->id,
-                    'rate' => $source->rate,
-//                    'test' => $decodeContent->result->productReviews->content[27]->mediaFiles[0]->url
-                ]
-            ];
-            if ($image) {
-                foreach ($source->mediaFiles as $i => $img) {
-                    $template_data[$index]['image'][$i] =
-                        [
-                            'url' => $img->url,
-                            'thumbnailUrl' => $img->thumbnailUrl
-                        ];
+        foreach ($templates as $template) {
+            var_dump(-2);
+            $template_data[$template->table] = [];
+            $fields = Field::where('template_id', $template->id)->get();
+            foreach ($fields as $field) {
+                var_dump(-1);
+                $key_fields = explode('->', $field->source);
+                $source = json_decode($content, true);
+                foreach ($key_fields as $k => $key_field) {
+                    var_dump(0);
+                    if (!array_key_exists($key_field, $source)) {
+                        var_dump(1);
+                        foreach ($source as $s => $res) {
+                            if (array_key_exists($key_field, $res)) {
+                                var_dump(2);
+                                $template_data[$template->table][$s][$field->destination] = $res[$key_field];
+                            }
+                        }
+                    } else {
+                        var_dump(3);
+                        $source = $source[$key_field];
+//                    $template_data[$template->table][$fields->destination] = $source;
+                    }
+//                dd($template_data);
                 }
             }
         }
         return $template_data;
     }
+//        foreach ($decodeContent->result->productReviews->content as $index => $source) {
+//            $image = property_exists($source, "mediaFiles");
+//            $template_data[$index] = [
+//                'comment' => [
+//                    'title' => $source->commentTitle,
+//                    'description' => $source->comment,
+//                    'productSize' => $source->productSize,
+//                    'username' => $source->userFullName,
+//                    'id' => $source->id,
+//                    'rate' => $source->rate,
+//                ]
+//            ];
+//            if ($image) {
+//                foreach ($source->mediaFiles as $i => $img) {
+//                    $template_data[$index]['image'][$i] =
+//                        [
+//                            'url' => $img->url,
+//                            'thumbnailUrl' => $img->thumbnailUrl
+//                        ];
+//                }
+//            }
+//        }
+
 //    private function test($dest, $keys, $template, $field)
 //    {
 //        foreach ($keys as $key) {
