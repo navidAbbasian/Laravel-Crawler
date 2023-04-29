@@ -48,7 +48,7 @@ class ApiContentCrawler extends Controller
             //comment table
             $data = [];
 //            foreach ($decodeContent->result->productReviews->content as $index => $test) {
-            $data = $this->getTemplateData($decodeContent);
+            $data = $this->getTemplateData($decodeContent , $endpoint_id);
             dd($data);
 //            }
             //products tables
@@ -66,36 +66,34 @@ class ApiContentCrawler extends Controller
      * @return array
      */
 
-    private function getTemplateData($decodeContent): array
+    private function getTemplateData($decodeContent ,$endpoint_id): array
     {
+        $templates = Template::where('endpoint_id', $endpoint_id)->get();
+        $content = $decodeContent->result->productReviews->content;
         $template_data = [];
 //        dd(property_exists($decodeContent->result->productReviews->content[27], "mediaFiles"));
 //        dd($decodeContent->result->productReviews->content[27]->mediaFiles[0]->url);
-        foreach ($decodeContent->result->productReviews->content as $index => $test) {
-            if (property_exists($test, "mediaFiles")) {
-                $image = true;
-            }else{
-                $image = false;
-            }
-
+        foreach ($content as $index => $source) {
+            $image = property_exists($source, "mediaFiles");
             $template_data[$index] = [
                 'comment' => [
-                    'title' => $test->commentTitle,
-                    'description' => $test->comment,
-                    'productSize' => $test->productSize,
-                    'username' => $test->userFullName,
-                    'id' => $test->id,
-                    'rate' => $test->rate,
+                    'title' => $source->commentTitle,
+                    'description' => $source->comment,
+                    'productSize' => $source->productSize,
+                    'username' => $source->userFullName,
+                    'id' => $source->id,
+                    'rate' => $source->rate,
 //                    'test' => $decodeContent->result->productReviews->content[27]->mediaFiles[0]->url
                 ]
             ];
-
             if ($image) {
-                foreach ($test->mediaFiles as $i => $img)
-                    $template_data['image'][$i] =
+                foreach ($source->mediaFiles as $i => $img) {
+                    $template_data[$index]['image'][$i] =
                         [
-                            'url' => $img->url
+                            'url' => $img->url,
+                            'thumbnailUrl' => $img->thumbnailUrl
                         ];
+                }
             }
         }
         return $template_data;
