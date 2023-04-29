@@ -12,6 +12,9 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Client;
 use Exception;
 
+/**
+ *
+ */
 class ApiContentCrawler extends Controller
 {
     /**
@@ -61,12 +64,13 @@ class ApiContentCrawler extends Controller
         }
     }
 
+
     /**
      * @param $content
+     * @param $endpoint_id
      * @return array
      */
-
-    private function getTemplateData($content, $endpoint_id): array
+    private function getTemplateData($content, $endpoint_id)
     {
         $templates = Template::where('endpoint_id', $endpoint_id)->get();
         foreach ($templates as $template) {
@@ -78,20 +82,22 @@ class ApiContentCrawler extends Controller
                 $key_fields = explode('->', $field->source);
                 $source = json_decode($content, true);
                 foreach ($key_fields as $k => $key_field) {
-                    var_dump(0);
+                    var_dump(0, $key_field);
                     if (!array_key_exists($key_field, $source)) {
                         var_dump(1);
                         foreach ($source as $s => $res) {
                             if (array_key_exists($key_field, $res)) {
                                 var_dump(2);
                                 $template_data[$template->table][$s][$field->destination] = $res[$key_field];
+                            } else {
+                                var_dump(9);
                             }
                         }
                     } else {
                         var_dump(3);
                         $source = $source[$key_field];
-//                    $template_data[$template->table][$fields->destination] = $source;
                     }
+//                    $template_data[$template->table][$fields->destination] = $source;
 //                dd($template_data);
                 }
             }
