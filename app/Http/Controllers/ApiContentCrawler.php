@@ -49,7 +49,6 @@ class ApiContentCrawler extends Controller
 
             //final data
             //comment table
-            $data = [];
 //            foreach ($decodeContent->result->productReviews->content as $index => $test) {
             $data = $this->getTemplateData($content, $endpoint_id);
             dd($data);
@@ -74,31 +73,21 @@ class ApiContentCrawler extends Controller
     {
         $templates = Template::where('endpoint_id', $endpoint_id)->get();
         foreach ($templates as $template) {
-            var_dump(-2);
             $template_data[$template->table] = [];
             $fields = Field::where('template_id', $template->id)->get();
             foreach ($fields as $field) {
-                var_dump(-1);
                 $key_fields = explode('->', $field->source);
                 $source = json_decode($content, true);
                 foreach ($key_fields as $k => $key_field) {
-                    var_dump(0, $key_field);
                     if (!array_key_exists($key_field, $source)) {
-                        var_dump(1);
                         foreach ($source as $s => $res) {
                             if (array_key_exists($key_field, $res)) {
-                                var_dump(2);
                                 $template_data[$template->table][$s][$field->destination] = $res[$key_field];
-                            } else {
-                                var_dump(9);
                             }
                         }
                     } else {
-                        var_dump(3);
                         $source = $source[$key_field];
                     }
-//                    $template_data[$template->table][$fields->destination] = $source;
-//                dd($template_data);
                 }
             }
         }
