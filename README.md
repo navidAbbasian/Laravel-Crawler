@@ -2,4 +2,4 @@
 
 ## Scrap data from websites with laravel<br>
 #### scrap data with pars html or apis<br>
-this crawler is good for copy data for your site from other site
+this crawler is good for copy data for your site from other site <br>
