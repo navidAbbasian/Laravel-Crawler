@@ -2,4 +2,5 @@
 
 ## Scrap data from websites with laravel<br>
 #### scrap data with pars html or apis<br>
+put this crawler in the a queue<br>
 this crawler is good for copy data for your site from other site <br>
